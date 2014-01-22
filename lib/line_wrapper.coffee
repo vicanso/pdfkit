@@ -22,6 +22,27 @@ class LineWrapper extends EventEmitter
                 options.align = align
         
     wrap: (paragraphs, options) ->
+        # ADD BY TREE FOR CHINESE
+        cutChineseWord = (wordsList) ->
+            cutWords = (words) ->
+                str = ''
+                cutResult = []
+                for ch in words
+                    code = ch.charCodeAt 0
+                    if code < 0xff
+                        str += ch
+                    else
+                        if str
+                            cutResult.push str
+                            str = ''
+                        cutResult.push ch
+                if str
+                    cutResult.push str
+                cutResult
+            result = []
+            for words in wordsList
+                result = result.concat cutWords words
+            result
         width = @document.widthOfString.bind(@document)
         indent = options.indent or 0
         charSpacing = options.characterSpacing or 0
@@ -52,6 +73,9 @@ class LineWrapper extends EventEmitter
             
             # split the line into words
             words = text.match(WORD_RE) or [text]
+
+            # ADD BY TREE FOR CHINESE
+            words = cutChineseWord words
                           
             # space left on the line to fill with words
             spaceLeft = @lineWidth - indent
